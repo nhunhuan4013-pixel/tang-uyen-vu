@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gửi Uyên Vũ - Từ Timi & Nguyễn Như Nhuận</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&family=Great+Vibes&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -537,11 +537,11 @@
         let particles = [];
         let animationFrameId;
 
+        // Trạng thái: 0 = Bay lơ lửng, 1 = Đang xếp chữ, 2 = Đã xếp xong, 3 = Nổ tung
         let state = 0; 
 
-        // ĐÃ VIẾT HOA TOÀN BỘ CHỮ
-        const line1Text = "TẶNG UYÊN VŨ";
-        const line2Text = "SIÊU CUTE";
+        const line1Text = "Tặng Uyên Vũ";
+        const line2Text = "Siêu Cute";
 
         function resizeCanvas() {
             width = canvas.width = window.innerWidth;
@@ -556,25 +556,23 @@
             tempCanvas.width = width;
             tempCanvas.height = height;
 
-            // SỬ DỤNG FONT CHỮ IN HOA, KHÔNG CHÂN, NÉT DÀY
-            let fontSize = width < 450 ? 26 : (width < 600 ? 35 : 50); 
-            tempCtx.font = `900 ${fontSize}px 'Quicksand', sans-serif`;
+            let fontSize = width < 600 ? 60 : 90; 
+            tempCtx.font = `bold ${fontSize}px 'Great Vibes', cursive`;
             tempCtx.fillStyle = "white";
             tempCtx.textAlign = "center";
             tempCtx.textBaseline = "middle";
 
-            tempCtx.fillText(line1Text, width / 2, height / 2 - fontSize * 0.9);
+            tempCtx.fillText(line1Text, width / 2, height / 2 - fontSize * 0.8);
             
-            fontSize = width < 450 ? 32 : (width < 600 ? 40 : 55); 
-            tempCtx.font = `900 ${fontSize}px 'Quicksand', sans-serif`;
-            tempCtx.fillText(line2Text, width / 2, height / 2 + fontSize * 0.9);
+            fontSize = width < 600 ? 45 : 70; 
+            tempCtx.font = `bold ${fontSize}px 'Great Vibes', cursive`;
+            tempCtx.fillText(line2Text, width / 2, height / 2 + fontSize * 0.8);
 
             const imageData = tempCtx.getImageData(0, 0, width, height);
             const data = imageData.data;
             const coords = [];
 
-            // Bước nhảy 2px để lấy được lượng hạt vừa đủ, không bị nặng máy
-            const step = 2; 
+            const step = width < 600 ? 3 : 4; 
             for (let y = 0; y < height; y += step) {
                 for (let x = 0; x < width; x += step) {
                     const index = (y * width + x) * 4;
@@ -592,6 +590,7 @@
             }
 
             reset() {
+                // Ban đầu bay lơ lửng ngẫu nhiên khắp màn hình
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
                 
@@ -601,8 +600,7 @@
                 this.vx = (Math.random() - 0.5) * 4;
                 this.vy = (Math.random() - 0.5) * 4;
                 
-                // Hạt to hơn một chút để lấp đầy chữ
-                this.size = Math.random() * 1.5 + 1;
+                this.size = Math.random() * 1.5 + 0.5;
                 
                 const colors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffc0cb'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
@@ -614,19 +612,25 @@
 
             update() {
                 if (state === 3) {
+                    // Nổ tung
                     this.x += this.vx * 15;
                     this.y += this.vy * 15;
                     this.alpha -= 0.03;
                 } else if (state >= 1 && this.targetX !== null) {
-                    this.x += (this.targetX - this.x) * 0.1;
-                    this.y += (this.targetY - this.y) * 0.1;
+                    // Bay về vị trí xếp chữ
+                    this.x += (this.targetX - this.x) * 0.08;
+                    this.y += (this.targetY - this.y) * 0.08;
                     
+                    // Nhấp nháy khi đã vào vị trí
                     this.alpha += this.twinkleSpeed * this.twinkleDir;
                     if (this.alpha > 1) { this.alpha = 1; this.twinkleDir = -1; }
-                    if (this.alpha < 0.7) { this.alpha = 0.7; this.twinkleDir = 1; }
+                    if (this.alpha < 0.4) { this.alpha = 0.4; this.twinkleDir = 1; }
                 } else {
+                    // Trạng thái 0: Bay lơ lửng tự do
                     this.x += this.vx;
                     this.y += this.vy;
+
+                    // Đập vào mép màn hình thì bật lại
                     if (this.x < 0 || this.x > width) this.vx *= -1;
                     if (this.y < 0 || this.y > height) this.vy *= -1;
                 }
@@ -638,6 +642,17 @@
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
+
+                if (this.size > 1.2 && this.alpha > 0.8 && state === 2) {
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 3, this.y);
+                    ctx.lineTo(this.x + 3, this.y);
+                    ctx.moveTo(this.x, this.y - 3);
+                    ctx.lineTo(this.x, this.y + 3);
+                    ctx.stroke();
+                }
             }
         }
 
@@ -647,25 +662,29 @@
         function drawOrb() {
             if(state === 3) return;
             
+            // Quả cầu chỉ hiện lên khi bắt đầu xếp chữ
             if (state >= 1) {
-                if (orbRadius < (width < 600 ? 20 : 35)) orbRadius += 0.5;
-                if (orbAlpha < 0.3) orbAlpha += 0.01; // Làm mờ quả cầu tối đa
+                if (orbRadius < (width < 600 ? 30 : 50)) orbRadius += 0.5;
+                if (orbAlpha < 0.8) orbAlpha += 0.01;
 
                 const cx = width / 2;
                 const cy = height / 2;
 
-                ctx.strokeStyle = `rgba(255, 182, 193, ${orbAlpha * 0.2})`;
+                // Vòng quỹ đạo
+                ctx.strokeStyle = `rgba(255, 182, 193, ${orbAlpha * 0.3})`;
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.ellipse(cx, cy, orbRadius * 5, orbRadius * 2, Math.PI / 4, 0, Math.PI * 2);
+                ctx.ellipse(cx, cy, orbRadius * 4, orbRadius * 1.5, Math.PI / 4, 0, Math.PI * 2);
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.ellipse(cx, cy, orbRadius * 4.5, orbRadius * 1.5, -Math.PI / 3, 0, Math.PI * 2);
+                ctx.ellipse(cx, cy, orbRadius * 3.5, orbRadius * 1.2, -Math.PI / 3, 0, Math.PI * 2);
                 ctx.stroke();
 
+                // Quả cầu năng lượng
                 const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, orbRadius);
-                gradient.addColorStop(0, `rgba(255, 105, 180, ${orbAlpha})`);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${orbAlpha})`);
+                gradient.addColorStop(0.4, `rgba(255, 105, 180, ${orbAlpha})`);
                 gradient.addColorStop(1, `rgba(255, 20, 147, 0)`);
 
                 ctx.fillStyle = gradient;
@@ -677,21 +696,16 @@
 
         const floatingHearts = [];
         function createFloatingHeart() {
-            if(state === 3 || floatingHearts.length > 15) return; // Giảm số lượng tim bay
-            
-            // Chỉ cho tim bay ở 2 bên mép để không đè lên chữ
-            const isLeft = Math.random() > 0.5;
-            const xPos = isLeft ? Math.random() * (width * 0.2) : width - (Math.random() * (width * 0.2));
-
+            if(state === 3 || floatingHearts.length > 50) return;
             floatingHearts.push({
-                x: xPos,
+                x: Math.random() * width,
                 y: height + 20,
-                speed: Math.random() * 1 + 0.5,
-                size: Math.random() * 10 + 10,
-                alpha: Math.random() * 0.6 + 0.4
+                speed: Math.random() * 1.5 + 0.5,
+                size: Math.random() * 8 + 6,
+                alpha: Math.random() * 0.5 + 0.3
             });
         }
-        setInterval(createFloatingHeart, 500);
+        setInterval(createFloatingHeart, 200);
 
         function drawHearts() {
             for (let i = floatingHearts.length - 1; i >= 0; i--) {
@@ -700,8 +714,8 @@
                 
                 ctx.globalAlpha = h.alpha;
                 ctx.font = `${h.size}px Arial`;
-                ctx.fillStyle = '#ff1493';
-                ctx.fillText('❤️', h.x, h.y);
+                ctx.fillStyle = '#ff69b4';
+                ctx.fillText('❤', h.x, h.y);
 
                 if (h.y < -20) {
                     floatingHearts.splice(i, 1);
@@ -711,7 +725,8 @@
         }
 
         function animate() {
-            ctx.fillStyle = '#05030a'; 
+            // Xóa màn hình (tạo vệt mờ cho hạt bay tự do)
+            ctx.fillStyle = 'rgba(5, 3, 10, 0.3)'; 
             ctx.fillRect(0, 0, width, height);
 
             drawOrb();
@@ -728,7 +743,7 @@
 
         function initParticles() {
             particles = [];
-            const numParticles = width < 600 ? 3500 : 7000; 
+            const numParticles = width < 600 ? 1500 : 3000; 
             for (let i = 0; i < numParticles; i++) {
                 particles.push(new Particle());
             }
@@ -741,7 +756,7 @@
 
 
         // =========================================
-        // PHẦN 2: XỬ LÝ CLICK 
+        // PHẦN 2: XỬ LÝ CLICK (QUAN TRỌNG)
         // =========================================
         const bgMusic = document.getElementById('bg-music');
         const musicToggle = document.getElementById('music-toggle');
@@ -753,31 +768,37 @@
 
         function handleScreenClick() {
             if (state === 0) {
+                // LẦN CLICK 1: Xếp thành chữ
                 state = 1;
                 document.getElementById('hint-text').style.display = 'none';
                 
+                // Lấy tọa độ chữ và gán cho hạt
                 const coords = getTextCoordinates();
                 for (let i = 0; i < particles.length; i++) {
                     if (i < coords.length) {
-                        particles[i].targetX = coords[i].x;
-                        particles[i].targetY = coords[i].y;
+                        particles[i].targetX = coords[i].x + (Math.random() - 0.5) * 2;
+                        particles[i].targetY = coords[i].y + (Math.random() - 0.5) * 2;
                     } else {
+                        // Hạt dư thừa thì cho bay ra rìa
                         particles[i].targetX = Math.random() * width;
-                        particles[i].targetY = Math.random() < 0.5 ? -100 : height + 100;
+                        particles[i].targetY = Math.random() < 0.5 ? -50 : height + 50;
                     }
                 }
                 
+                // Phát nhạc luôn từ click đầu tiên
                 bgMusic.volume = 0.6;
                 bgMusic.play().then(() => {
                     musicToggle.classList.add('playing');
                     isMusicPlaying = true;
                 }).catch(e => console.log("Lỗi phát nhạc"));
 
+                // Đợi 2 giây cho hạt xếp xong thì chuyển sang trạng thái chờ click tiếp
                 setTimeout(() => {
                     state = 2;
                 }, 2000);
 
             } else if (state === 2) {
+                // LẦN CLICK 2: Nổ tung và chuyển cảnh
                 state = 3;
                 
                 setTimeout(() => {
@@ -787,9 +808,11 @@
                     
                     setTimeout(() => {
                         universeScreen.style.display = 'none';
+                        // Hiện màn hình đồng cỏ
                         document.getElementById('intro-screen').classList.add('show');
                         petalInterval = setInterval(createPetal, 150);
                         
+                        // Đợi 5.5s đọc chữ xong thì vào giao diện chính
                         setTimeout(() => {
                             const introScreen = document.getElementById('intro-screen');
                             const mainContent = document.getElementById('main-content');
